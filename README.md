@@ -2,7 +2,22 @@
 
 在 Steam Deck 游戏模式的 Decky 快捷访问栏中，自动识别正在运行的游戏，搜索游民星空攻略，并直接阅读图文正文。
 
-[GitHub 仓库](https://github.com/Logic-mle/decky-guide) · [问题反馈](https://github.com/Logic-mle/decky-guide/issues)
+[下载最新版本](https://github.com/Logic-mle/decky-guide/releases/latest) · [更新日志](CHANGELOG.md) · [GitHub 仓库](https://github.com/Logic-mle/decky-guide) · [问题反馈](https://github.com/Logic-mle/decky-guide/issues)
+
+## 快速安装
+
+当前正式版：**v1.0.0**。需要 Steam Deck 游戏模式及已安装的 [Decky Loader](https://github.com/SteamDeckHomebrew/decky-loader#installation)。实现以 Decky Loader 3.2.8 的接口为基准，其他版本的兼容性需实机确认。普通用户无需安装 Node.js 或编译源码。
+
+1. 在 Steam Deck 上打开 [v1.0.0 下载页](https://github.com/Logic-mle/decky-guide/releases/tag/v1.0.0)，在 Assets 中下载 **`DeckyGuide-v1.0.0.zip`**。
+2. 回到游戏模式，按 `…` 打开 Decky，进入设置并启用开发者模式。
+3. 在开发者选项中选择从 ZIP 安装，选中下载的文件并确认。若当前 Decky 提供的是“从 URL 安装”，可粘贴下面的安装包链接。
+4. 安装完成后打开 **Decky Guide**；若未显示，重新加载插件或重启 Steam。
+
+```text
+https://github.com/Logic-mle/decky-guide/releases/download/v1.0.0/DeckyGuide-v1.0.0.zip
+```
+
+请下载上述安装包；GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是源码，不包含编译后的插件入口，不能直接安装。
 
 ## 功能
 
@@ -14,7 +29,7 @@
 - 按游戏保存最近阅读的攻略、章节和段落内位置，首页可继续阅读；未运行游戏时保存在独立的手动阅读记录中。
 - 三档正文字号（14 / 16 / 18px），自动记住偏好；图片可在弹窗中放大至 200%。
 - 章节目录支持关键词筛选，保留原始章节编号和当前章节标记。
-- 延续 0.5.0 的整页流式阅读，正文使用侧栏原生滚动；章节目录与阅读设置吸顶常驻，展开面板显示在工具栏下方，章节翻页按钮位于文末。
+- 整页流式阅读，正文使用侧栏原生滚动；章节目录与阅读设置吸顶常驻，展开面板显示在工具栏下方，章节翻页按钮位于文末。
 - 支持手柄滚动、翻页、看图和分层返回。
 - 搜索和正文使用 6 小时内存缓存，减少重复请求。
 - 使用 Decky Loader 3.2.8 自带的网络代理，不依赖插件 Python 子进程，也不需要 root 权限。
@@ -29,7 +44,7 @@ https://so.gamersky.com/all/handbook?s=<游戏名>&type=hot&sort=des&post=0
 
 正文从公开的 `www.gamersky.com/handbook/...` 页面读取。插件只接受 `gamersky.com` 及其子域链接。
 
-调研中还确认了旧版 App 使用的内部端点 `appapi2.gamersky.com/v1/ContentDetail/...`。内容端点目前仍能返回移动版 HTML，但它没有公开文档或稳定性承诺；旧客户端的 `v2/TwoSearch` 搜索端点目前已返回业务错误。因此当前实现选择公开搜索页和公开正文页，并通过 Decky Loader 3.2.8 的 `fetchNoCors` 内置代理读取。解析在 Steam UI 前端完成，避免自定义 Python 后端失联导致调用永久等待。
+当前实现通过 Decky 的 `fetchNoCors` 内置代理读取公开页面，在 Steam UI 前端解析，不使用游民星空内部 App API。第三方页面没有稳定性承诺，页面结构变化可能导致搜索或正文解析失效。
 
 本插件与游民星空无隶属或授权关系，内容版权归原作者及游民星空所有。
 
@@ -41,21 +56,21 @@ https://so.gamersky.com/all/handbook?s=<游戏名>&type=hot&sort=des&post=0
 
 ## 构建
 
-需要 Node.js 18+。在项目目录执行：
+建议使用 Node.js 22 和 npm；打包还需要 Python 3。在项目目录执行：
 
 ```bash
-npm install
-npm run build
+npm ci
 npm test
+npm run build
 ```
 
-构建结果为 `dist/index.js`。
+构建结果为 `dist/index.js`。执行 `npm run package` 可重新构建并生成 `out/DeckyGuide-v1.0.0.zip` 和对应的 SHA-256 校验文件。
 
 ## 安装到 Steam Deck
 
 ### 开发安装
 
-1. 将整个项目目录复制到 Steam Deck 的 `~/homebrew/plugins/Decky Guide/`。
+1. 先执行构建，再将安装包中的 `DeckyGuide/` 目录复制到 Steam Deck 的 `~/homebrew/plugins/`（以实际 Decky 安装路径为准）。
 2. 确认目录中至少有 `dist/index.js`、`plugin.json`、`package.json` 和 `LICENSE`。
 3. 重启 Steam，或在 Decky 开发者设置中重新加载插件。
 
@@ -124,3 +139,32 @@ tail -f /tmp/plugin_loader.log
 ```
 
 搜索 `Gamersky`、`Decky Guide`、`fetch`、`CERTIFICATE` 或 `Traceback`。
+
+## 更新与卸载
+
+- **更新**：下载新版本的安装 ZIP，按快速安装步骤覆盖安装。阅读进度和名称匹配保存在 Steam UI 本地存储中；保留该存储时通常可继续使用原记录，项目不提供跨设备备份。
+- **从 0.6.5 更新**：1.0.0 沿用原来的本地存储键，不进行数据迁移。
+- **卸载**：在 Decky 设置的插件管理中卸载 Decky Guide。卸载插件不保证清除 Steam UI 本地存储中的阅读记录。
+
+## 常见问题
+
+| 问题 | 处理方式 |
+| --- | --- |
+| 装不上或提示缺少入口 | 确认下载的是 `DeckyGuide-v1.0.0.zip`，不是 Source code；ZIP 内应包含 `DeckyGuide/dist/index.js`。 |
+| 没有自动识别游戏 | 先启动游戏；非 Steam 游戏可手动输入中文名称并搜索。 |
+| 搜不到攻略或匹配了同名游戏 | 尝试完整中文名，使用“搜索并记住匹配”；确认游民星空网站本身有相应攻略。 |
+| 正文为空、图片失败或请求超时 | 检查网络，重试加载；仍失败时打开原文，并在 Issue 附上攻略链接。 |
+| 更新 Steam 后插件无法使用 | 检查 Decky 是否正常加载，记录 SteamOS、Steam 客户端和 Decky 版本后反馈。 |
+| 找不到以前的阅读进度 | 确认当前游戏与原记录一致；清理 Steam UI 存储会删除记录。 |
+
+## 网络请求与本地数据
+
+插件会向 Steam 商店发送当前游戏 AppID 以查询名称，向游民星空发送游戏名或搜索词，并请求用户打开的攻略页面和图片。相应网站会接收这些请求的常规网络信息。插件不需要账号、API Key 或自建后端，代码中未加入分析统计或遥测服务。
+
+游戏别名、自动匹配结果、阅读进度和字号偏好保存在当前 Steam UI 的 `localStorage` 中；搜索和正文缓存保存在内存中。攻略正文不是离线下载资料库。
+
+## 参与项目
+
+欢迎通过 [Issue](https://github.com/Logic-mle/decky-guide/issues/new/choose) 反馈问题或提出功能建议；开发和发布流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+感谢 [Decky Loader](https://github.com/SteamDeckHomebrew/decky-loader) 及相关开发库、React 和 React Icons。第三方依赖遵循各自许可证；攻略文字、图片及商标归各自权利人所有。本项目与 Valve、Decky Loader 或游民星空不存在官方隶属关系。

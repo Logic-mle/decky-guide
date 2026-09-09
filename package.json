@@ -1,6 +1,6 @@
 {
   "name": "decky-guide",
-  "version": "0.6.5",
+  "version": "1.0.0",
   "description": "Read Gamersky game guides from the Decky Loader quick access menu.",
   "type": "module",
   "scripts": {
@@ -8,7 +8,8 @@
     "watch": "rollup -c -w",
     "test": "tsc --noEmit && node --test tests/reading-state.test.mjs",
     "preview": "node scripts/preview.mjs --serve",
-    "test:browser": "node tests/reader-browser.mjs"
+    "test:browser": "node tests/reader-browser.mjs",
+    "package": "npm run build && python3 scripts/package.py"
   },
   "keywords": [
     "decky",
@@ -39,5 +40,13 @@
         "react-dom"
       ]
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Logic-mle/decky-guide.git"
+  },
+  "homepage": "https://github.com/Logic-mle/decky-guide#readme",
+  "bugs": {
+    "url": "https://github.com/Logic-mle/decky-guide/issues"
   }
 }

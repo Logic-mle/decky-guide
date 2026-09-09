@@ -1,0 +1,40 @@
+name: Publish release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Check version and notes
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node --input-type=module -e 'import fs from "node:fs"; const p = JSON.parse(fs.readFileSync("package.json")); if (process.env.RELEASE_TAG !== `v${p.version}`) throw Error("Tag does not match package version"); if (!fs.existsSync(`docs/releases/v${p.version}.md`)) throw Error("Missing release notes");'
+      - run: npm ci
+      - run: npm test
+      - run: npm run package
+      - name: Publish ZIP and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            test "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" = true
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "Decky Guide $RELEASE_TAG · 首个正式版" --notes-file "docs/releases/$RELEASE_TAG.md"
+          fi
+          gh release upload "$RELEASE_TAG" "out/DeckyGuide-$RELEASE_TAG.zip" "out/DeckyGuide-$RELEASE_TAG.zip.sha256" --clobber
+          gh release edit "$RELEASE_TAG" --draft=false --latest
