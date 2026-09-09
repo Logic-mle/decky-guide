@@ -1,0 +1,11 @@
+{
+  "name": "Decky Guide",
+  "author": "Leo Wu",
+  "flags": [],
+  "api_version": 1,
+  "publish": {
+    "tags": ["guides", "gamersky", "chinese"],
+    "description": "在 Decky 侧栏中自动查找并阅读当前游戏的游民星空攻略。",
+    "image": "assets/logo.svg"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+out/
+*.zip
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
